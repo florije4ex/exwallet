@@ -4,11 +4,11 @@ services:
     container_name: dev_btc_nginx
     image: nginx:latest
     ports:
-      - "8339:8339"
+      - "8342:8342"
     links:
       - bitcoind
     volumes:
-      - ./btc.conf:/etc/nginx/conf.d/btc.conf
+      - ./ng.conf:/etc/nginx/conf.d/ng.conf
   bitcoind:
     build: .
     image: dev/btc

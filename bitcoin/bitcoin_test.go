@@ -72,7 +72,7 @@ func TestSignTx(t *testing.T) {
 		Error  string `json:"error"`
 		Id     uint64 `json:"id"`
 	}
-	rpcUrl := "http://localhost:8339"
+	rpcUrl := "http://localhost:8342"
 	// get address and private key
 	fromAddress, err := GetAddress()
 	if err != nil {

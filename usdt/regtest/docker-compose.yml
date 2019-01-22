@@ -1,0 +1,20 @@
+version: '3'
+services:
+  web:
+    container_name: dev_usdt_nginx
+    image: nginx:latest
+    ports:
+      - "8352:8352"
+    links:
+      - usdt
+    volumes:
+      - ./ng.conf:/etc/nginx/conf.d/ng.conf
+  usdt:
+    build: .
+    image: dev/usdt
+    container_name: dev_usdt
+    command: omnicored -conf=/data/bitcoin.conf -printtoconsole
+    expose:
+     - "8332"
+    volumes:
+     - .:/data

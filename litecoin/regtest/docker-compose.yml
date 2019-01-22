@@ -4,11 +4,11 @@ services:
     container_name: dev_ltc_nginx
     image: nginx:latest
     ports:
-      - "9339:9339"
+      - "9342:9342"
     links:
       - litecoind
     volumes:
-      - ./ltc.conf:/etc/nginx/conf.d/ltc.conf
+      - ./ng.conf:/etc/nginx/conf.d/ng.conf
   litecoind:
     build: .
     image: dev/ltc
