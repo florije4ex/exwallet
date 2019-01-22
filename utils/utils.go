@@ -1,15 +1,20 @@
 package utils
 
 import (
+	"bytes"
 	"crypto/aes"
 	"crypto/cipher"
 	"crypto/md5"
 	"crypto/rand"
 	"encoding/hex"
+	"encoding/json"
+	"fmt"
 	"github.com/bartekn/go-bip39"
 	"github.com/btcsuite/btcd/chaincfg"
 	"io"
 	"io/ioutil"
+	"log"
+	"net/http"
 	"os"
 )
 
@@ -111,4 +116,49 @@ func DecryptFile(filename string, passphrase string) (string, error) {
 		return "", err
 	}
 	return decryptedData, nil
+}
+
+func GetData(url string, resu interface{}) error {
+	res, err := http.Get(url)
+	if err != nil {
+		return err
+	}
+	return creatResult(res, resu)
+}
+
+func PostData(url string, postData interface{}, resu interface{}) error {
+	var data []byte
+	var err error
+	if postData != nil {
+		data, err = json.Marshal(postData)
+		if err != nil {
+			return err
+		}
+	}
+	bodyReader := bytes.NewBuffer(data)
+	res, err := http.Post(url, "application/json", bodyReader)
+	if err != nil {
+		return err
+	}
+	return creatResult(res, resu)
+}
+
+func creatResult(resp *http.Response, resu interface{}) error {
+	defer func() {
+		err := resp.Body.Close()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}()
+	body, err := ioutil.ReadAll(resp.Body)
+	if err != nil {
+		return err
+	}
+	if resp.StatusCode != http.StatusOK {
+		return fmt.Errorf("statusCode :%v ; body :%v", resp.StatusCode, string(body))
+	}
+	if resu == nil {
+		return nil
+	}
+	return json.Unmarshal(body, resu)
 }

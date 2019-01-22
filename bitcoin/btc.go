@@ -36,89 +36,77 @@ type TXOutput struct {
 	Amount  int64  `json:"amount"`
 }
 
-func GetBtcAddress() (string, error) {
+func GetBtcAddress() (*Address, error) {
 	prvKey, err := btcec.NewPrivateKey(btcec.S256())
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	wif, err := btcutil.NewWIF(prvKey, utils.Net, true)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	pubKeySerial := prvKey.PubKey().SerializeCompressed()
 	addressPubKey, err := btcutil.NewAddressPubKey(pubKeySerial, utils.Net)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	address := Address{PrivateKey: wif.String(), Address: addressPubKey.EncodeAddress()}
-	jsonRes, err := json.Marshal(address)
-	if err != nil {
-		return "", err
-	}
-	return string(jsonRes), nil
+	address := &Address{PrivateKey: wif.String(), Address: addressPubKey.EncodeAddress()}
+	return address, nil
 }
 
-func GetAddrByPrvKey(prvKey string) (string, error) {
+func GetAddrByPrvKey(prvKey string) (*Address, error) {
 	wif, err := btcutil.DecodeWIF(prvKey)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	pubKeySerial := wif.PrivKey.PubKey().SerializeCompressed()
 	addressPubKey, err := btcutil.NewAddressPubKey(pubKeySerial, utils.Net)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	address := Address{PrivateKey: wif.String(), Address: addressPubKey.EncodeAddress()}
-	jsonRes, err := json.Marshal(address)
-	if err != nil {
-		return "", err
-	}
-	return string(jsonRes), nil
+	address := &Address{PrivateKey: wif.String(), Address: addressPubKey.EncodeAddress()}
+	return address, nil
 }
 
-func GetHdBtcAddress(mnemonic string, index int32) (string, error) {
+func GetHdBtcAddress(mnemonic string, index int32) (*Address, error) {
 	seed := bip39.NewSeed(mnemonic, "")
 	root, err := hdkeychain.NewMaster(seed, utils.Net)
 	// m/44'/0'/0'/0/0
 	purpose, err := root.Child(hdkeychain.HardenedKeyStart + 44)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	coinType, err := purpose.Child(hdkeychain.HardenedKeyStart + 0)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	account, err := coinType.Child(hdkeychain.HardenedKeyStart + 0)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	change, err := account.Child(0)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	prvExKey, err := change.Child(uint32(index))
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	prvKey, err := prvExKey.ECPrivKey()
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	wif, err := btcutil.NewWIF(prvKey, utils.Net, true)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
 	pubKeySerial := prvKey.PubKey().SerializeCompressed()
 	addressPubKey, err := btcutil.NewAddressPubKey(pubKeySerial, utils.Net)
 	if err != nil {
-		return "", err
+		return nil, err
 	}
-	address := Address{PrivateKey: wif.String(), Address: addressPubKey.EncodeAddress()}
-	jsonRes, err := json.Marshal(address)
-	if err != nil {
-		return "", err
-	}
-	return string(jsonRes), nil
+	address := &Address{PrivateKey: wif.String(), Address: addressPubKey.EncodeAddress()}
+	return address, nil
 }
 
 func SignBtcTx(txData string) (string, error) {

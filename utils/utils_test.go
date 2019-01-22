@@ -1,6 +1,13 @@
 package utils
 
-import "testing"
+import (
+	"encoding/json"
+	"fmt"
+	"io/ioutil"
+	"log"
+	"net/http"
+	"testing"
+)
 
 func TestGenMnemonic(t *testing.T) {
 	mnemonic, err := GetMnemonic()
@@ -40,4 +47,76 @@ func TestDecryptFile(t *testing.T) {
 		t.Error(err.Error())
 	}
 	t.Log(result)
+}
+
+type Data struct {
+	Name string `json:"name"`
+}
+
+func parseHandler(w http.ResponseWriter, r *http.Request) {
+	location := Data{}
+	jsn, err := ioutil.ReadAll(r.Body)
+	if err != nil {
+		log.Fatal("Error reading the body", err)
+	}
+	err = json.Unmarshal(jsn, &location)
+	if err != nil {
+		log.Fatal("Decoding error: ", err)
+	}
+	log.Printf("Received: %v\n", location)
+	locationJson, err := json.Marshal(location)
+	if err != nil {
+		_, err := fmt.Fprintf(w, "Error: %s", err)
+		if err != nil {
+			log.Fatal(err.Error())
+		}
+	}
+	w.Header().Set("Content-Type", "application/json")
+
+	_, err = w.Write(locationJson)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+
+}
+
+func server() {
+	http.HandleFunc("/", parseHandler)
+	err := http.ListenAndServe(":8080", nil)
+	if err != nil {
+		log.Fatal(err.Error())
+	}
+}
+
+//func client() {
+//	locJson, err := json.Marshal(Data{Name: "florije4ex"})
+//	req, err := http.NewRequest("POST", "http://localhost:8080", bytes.NewBuffer(locJson))
+//	req.Header.Set("Content-Type", "application/json")
+//	client := &http.Client{}
+//	resp, err := client.Do(req)
+//	if err != nil {
+//		log.Fatal(err)
+//	}
+//	body, err := ioutil.ReadAll(resp.Body)
+//
+//	fmt.Println("Response: ", string(body))
+//	defer func() {
+//		err := resp.Body.Close()
+//		if err != nil {
+//			log.Fatal(err.Error())
+//		}
+//	}()
+//}
+
+func TestPostData(t *testing.T) {
+	go server()
+	type Data struct {
+		Name string `json:"name"`
+	}
+	data := Data{}
+	err := PostData("http://localhost:8080", Data{Name: "florije4ex"}, &data)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	t.Log(data.Name)
 }
