@@ -11,6 +11,9 @@ then sync packages will install dependence in $GOPATH/pkg
 
 ## bitcoin
 ```text
+cd bitcoin
+docker-compose up -d
+test function TestSignTx
 
 links:
 https://bitcoincore.org/en/doc/0.16.3/
