@@ -1,19 +1,19 @@
-package btc
+package litecoin
 
 import (
 	"bytes"
 	"encoding/hex"
 	"github.com/bartekn/go-bip39"
-	"github.com/btcsuite/btcd/btcec"
-	"github.com/btcsuite/btcd/chaincfg"
-	"github.com/btcsuite/btcd/chaincfg/chainhash"
-	"github.com/btcsuite/btcd/txscript"
-	"github.com/btcsuite/btcd/wire"
-	"github.com/btcsuite/btcutil"
-	"github.com/btcsuite/btcutil/hdkeychain"
+	"github.com/ltcsuite/ltcd/btcec"
+	"github.com/ltcsuite/ltcd/chaincfg"
+	"github.com/ltcsuite/ltcd/chaincfg/chainhash"
+	"github.com/ltcsuite/ltcd/txscript"
+	"github.com/ltcsuite/ltcd/wire"
+	"github.com/ltcsuite/ltcutil"
+	"github.com/ltcsuite/ltcutil/hdkeychain"
 )
 
-var Network = &chaincfg.TestNet3Params
+var Network = &chaincfg.TestNet4Params
 
 type Address struct {
 	PrivateKey string `json:"privateKey"`
@@ -42,12 +42,12 @@ func GetAddress() (*Address, error) {
 	if err != nil {
 		return nil, err
 	}
-	wif, err := btcutil.NewWIF(prvKey, Network, true)
+	wif, err := ltcutil.NewWIF(prvKey, Network, true)
 	if err != nil {
 		return nil, err
 	}
 	pubKeySerial := prvKey.PubKey().SerializeCompressed()
-	addressPubKey, err := btcutil.NewAddressPubKey(pubKeySerial, Network)
+	addressPubKey, err := ltcutil.NewAddressPubKey(pubKeySerial, Network)
 	if err != nil {
 		return nil, err
 	}
@@ -56,12 +56,12 @@ func GetAddress() (*Address, error) {
 }
 
 func GetAddrByPrvKey(prvKey string) (*Address, error) {
-	wif, err := btcutil.DecodeWIF(prvKey)
+	wif, err := ltcutil.DecodeWIF(prvKey)
 	if err != nil {
 		return nil, err
 	}
 	pubKeySerial := wif.PrivKey.PubKey().SerializeCompressed()
-	addressPubKey, err := btcutil.NewAddressPubKey(pubKeySerial, Network)
+	addressPubKey, err := ltcutil.NewAddressPubKey(pubKeySerial, Network)
 	if err != nil {
 		return nil, err
 	}
@@ -97,12 +97,12 @@ func GetHdAddress(mnemonic string, index int32) (*Address, error) {
 	if err != nil {
 		return nil, err
 	}
-	wif, err := btcutil.NewWIF(prvKey, Network, true)
+	wif, err := ltcutil.NewWIF(prvKey, Network, true)
 	if err != nil {
 		return nil, err
 	}
 	pubKeySerial := prvKey.PubKey().SerializeCompressed()
-	addressPubKey, err := btcutil.NewAddressPubKey(pubKeySerial, Network)
+	addressPubKey, err := ltcutil.NewAddressPubKey(pubKeySerial, Network)
 	if err != nil {
 		return nil, err
 	}
@@ -110,9 +110,9 @@ func GetHdAddress(mnemonic string, index int32) (*Address, error) {
 	return address, nil
 }
 
-func SignTx(btcTx Tx) (string, error) {
+func SignTx(ltcTx Tx) (string, error) {
 	var inputs []*wire.TxIn
-	for _, input := range btcTx.Inputs {
+	for _, input := range ltcTx.Inputs {
 		hash, err := chainhash.NewHashFromStr(input.TxHash)
 		if err != nil {
 			return "", err
@@ -123,8 +123,8 @@ func SignTx(btcTx Tx) (string, error) {
 	}
 
 	var outputs []*wire.TxOut
-	for _, output := range btcTx.Outputs {
-		address, err := btcutil.DecodeAddress(output.Address, Network)
+	for _, output := range ltcTx.Outputs {
+		address, err := ltcutil.DecodeAddress(output.Address, Network)
 		if err != nil {
 			return "", err
 		}
@@ -142,9 +142,9 @@ func SignTx(btcTx Tx) (string, error) {
 		LockTime: 0,
 	}
 
-	for i, input := range btcTx.Inputs {
+	for i, input := range ltcTx.Inputs {
 		pkScript, _ := hex.DecodeString(input.ScriptPubKey)
-		wif, err := btcutil.DecodeWIF(input.PrivateKey)
+		wif, err := ltcutil.DecodeWIF(input.PrivateKey)
 		if err != nil {
 			return "", err
 		}

@@ -1,0 +1,20 @@
+version: '3'
+services:
+  web:
+    container_name: dev_ltc_nginx
+    image: nginx:latest
+    ports:
+      - "9339:9339"
+    links:
+      - litecoind
+    volumes:
+      - ./ltc.conf:/etc/nginx/conf.d/ltc.conf
+  litecoind:
+    build: .
+    image: dev/ltc
+    container_name: dev_ltc
+    command: litecoind -conf=/data/litecoin.conf -addresstype=legacy
+    expose:
+     - "9332"
+    volumes:
+     - .:/data

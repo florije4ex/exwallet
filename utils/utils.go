@@ -10,16 +10,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"github.com/bartekn/go-bip39"
-	"github.com/btcsuite/btcd/chaincfg"
 	"io"
 	"io/ioutil"
 	"log"
 	"net/http"
 	"os"
 )
-
-// btc
-var Net = &chaincfg.TestNet3Params
 
 // usdt
 var PropertyId = 31
