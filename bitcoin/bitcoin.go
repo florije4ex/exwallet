@@ -3,7 +3,6 @@ package btc
 import (
 	"bytes"
 	"encoding/hex"
-	"encoding/json"
 	"exwallet/utils"
 	"github.com/bartekn/go-bip39"
 	"github.com/btcsuite/btcd/btcec"
@@ -20,23 +19,23 @@ type Address struct {
 }
 
 type Tx struct {
-	Inputs  []TXInput  `json:"inputs"`
-	Outputs []TXOutput `json:"outputs"`
+	Inputs  []TxInput  `json:"inputs"`
+	Outputs []TxOutput `json:"outputs"`
 }
 
-type TXInput struct {
+type TxInput struct {
 	PrivateKey   string `json:"privateKey"`
 	ScriptPubKey string `json:"scriptPubKey"`
 	TxHash       string `json:"txHash"`
-	VoutIndex    int32  `json:"voutIndex"`
+	VoutIndex    uint64 `json:"voutIndex"`
 }
 
-type TXOutput struct {
+type TxOutput struct {
 	Address string `json:"address"`
 	Amount  int64  `json:"amount"`
 }
 
-func GetBtcAddress() (*Address, error) {
+func GetAddress() (*Address, error) {
 	prvKey, err := btcec.NewPrivateKey(btcec.S256())
 	if err != nil {
 		return nil, err
@@ -68,7 +67,7 @@ func GetAddrByPrvKey(prvKey string) (*Address, error) {
 	return address, nil
 }
 
-func GetHdBtcAddress(mnemonic string, index int32) (*Address, error) {
+func GetHdAddress(mnemonic string, index int32) (*Address, error) {
 	seed := bip39.NewSeed(mnemonic, "")
 	root, err := hdkeychain.NewMaster(seed, utils.Net)
 	// m/44'/0'/0'/0/0
@@ -109,13 +108,7 @@ func GetHdBtcAddress(mnemonic string, index int32) (*Address, error) {
 	return address, nil
 }
 
-func SignBtcTx(txData string) (string, error) {
-	var btcTx Tx
-	err := json.Unmarshal([]byte(txData), &btcTx)
-	if err != nil {
-		return "", err
-	}
-
+func SignTx(btcTx Tx) (string, error) {
 	var inputs []*wire.TxIn
 	for _, input := range btcTx.Inputs {
 		hash, err := chainhash.NewHashFromStr(input.TxHash)

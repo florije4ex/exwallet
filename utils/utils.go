@@ -19,7 +19,7 @@ import (
 )
 
 // btc
-var Net = &chaincfg.MainNetParams
+var Net = &chaincfg.TestNet3Params
 
 // usdt
 var PropertyId = 31
@@ -136,6 +136,7 @@ func PostData(url string, postData interface{}, resu interface{}) error {
 		}
 	}
 	bodyReader := bytes.NewBuffer(data)
+	//fmt.Println(string(data))
 	res, err := http.Post(url, "application/json", bodyReader)
 	if err != nil {
 		return err

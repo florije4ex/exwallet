@@ -13,7 +13,7 @@ services:
     build: .
     image: dev/btc
     container_name: dev_btc
-    command: bitcoind -datadir=/data -addresstype=legacy
+    command: bitcoind -conf=/data/bitcoin.conf -addresstype=legacy
     expose:
      - "8332"
     volumes:
