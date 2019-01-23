@@ -30,7 +30,32 @@ func TestSignEosTx(t *testing.T) {
 	contentType := "application/json"
 	// get abi encoded transfer data
 	abiUrl := "http://127.0.0.1:8888/v1/chain/abi_json_to_bin"
-	abiResp, err := http.Post(abiUrl, contentType, bytes.NewBuffer([]byte("{\"action\": \"transfer\", \"code\": \"eosio.token\", \"args\": {\"to\": \"inita\", \"memo\": \"\", \"from\": \"eosio.token\", \"quantity\": \"1.0000 SYS\"}}")))
+	type transfer struct {
+		From     string `json:"from"`
+		To       string `json:"to"`
+		Quantity string `json:"quantity"`
+		Memo     string `json:"memo"`
+	}
+	type transferAction struct {
+		Action string   `json:"action"`
+		Code   string   `json:"code"`
+		Args   transfer `json:"args"`
+	}
+	transferData := transferAction{
+		Code:   "eosio.token",
+		Action: "transfer",
+		Args: transfer{
+			From:     "eosio.token",
+			To:       "inita",
+			Quantity: "1.0000 SYS",
+			Memo:     "transfer 1 EOS from eosio.token to inita",
+		},
+	}
+	transferJson, err := json.Marshal(transferData)
+	if err != nil {
+		t.Error(err.Error())
+	}
+	abiResp, err := http.Post(abiUrl, contentType, bytes.NewBuffer(transferJson))
 	if err != nil {
 		t.Error(err.Error())
 	}
